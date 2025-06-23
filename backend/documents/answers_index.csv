@@ -1,0 +1,21 @@
+Question,Bonne réponse index
+En quoi consiste la phase de fine-tuning d'un LLM ?,3
+"Dans le contexte du NLP, qu'est-ce que l'analyse de sentiment ?",4
+"Dans un texte analysé avec l'algorithme TF-IDF, quel mot aura le plus grand score ?",1
+Quel est l'obstacle majeur lorsque l'on demande à un LLM de résumer un texte ?,4
+Pourquoi le NLP est-il difficile lorsqu'on l'applique à une langue rare ?,2
+Pourquoi les LLMs ont-ils tendance à se répéter ?,3
+Que fait la couche Dropout dans les LLMs ?,3
+Quel algorithme peut-on utiliser pour détecter 2 phrases similaires dans leur signification ?,1
+Doit-on utiliser un modèle de word embedding pour alimenter le fine-tuning d'un LLM ?,4
+Quel est le problème d'utiliser word2vec pour réaliser l'embedding d'une phrase complète ?,2
+L'analyse PCA permet-elle une représentation fiable de l'embedding de plusieurs phrases ?,3
+Les LLMs peuvent-ils prendre en compte des caractères spéciaux ?,4
+La tokenisation d'un mot par un LLM dépend-elle de la casse et la ponctuation associée ?,3
+Est-il possible de faire tourner GPT-3 sur son ordinateur personnel ?,1
+La métrique d'évaluation ROUGE prend-elle en compte le sens des phrases qu'elle compare ?,2
+Qu'est-ce qu'un prompt zéro-shot ?,1
+L'outil de déploiement de LLM Ollama peut-il fonctionner sans carte graphique ?,4
+Qu'est-ce qu'une base de données comme Weaviate peut apporter à un système de RAG ?,3
+A quoi sert le framework langchain ?,2
+Est-ce qu'il est utile de développer des chatbots ?,1
