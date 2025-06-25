@@ -1,74 +1,91 @@
 import React, { useState } from 'react';
 import QcmSelector from './components/QcmSelector';
 import QcmResultModal from './components/QcmResultModal';
+import RagChat from './components/RagChat';
+import ChatTab from './components/ChatTab.jsx';
+import {
+    askOne,
+    askFree,
+    askRag,
+    evaluateQcm
+} from './api';
+import dragonMeditatif from './assets/dragon.png'; // chemin vers ton image
 
 function App() {
-  const [tab, setTab] = useState('chat');
-  const [results, setResults] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [chatInput, setChatInput] = useState('');
-  const [chatResponse, setChatResponse] = useState('');
-  const [ragInput, setRagInput] = useState('');
-  const [ragResponse, setRagResponse] = useState('');
+    const [tab, setTab] = useState('chat');
+    const [results, setResults] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-  const handleQcmSubmit = (selectedIndices) => {
-    fetch('/api/qcm/evaluate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ questions: selectedIndices })
-    })
-      .then(res => res.json())
-      .then(data => {
-        setResults(data);
-        setShowModal(true);
-      });
-  };
+    const handleQcmSubmit = () => {
+        setIsLoading(true);
+        evaluateQcm()
+            .then(data => {
+                console.log("🧠 Résultats :", data);
+                setResults(data.results);
+                setShowModal(true);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+    };
 
-  const handleChatSubmit = () => {
-    fetch(`/api/chat?question=${encodeURIComponent(chatInput)}`)
-      .then(res => res.text())
-      .then(text => setChatResponse(text));
-  };
+    return (
+        <div style={{
+            minHeight: '100vh',
+            padding: '2rem',
+            backgroundColor: '#fff',
+        }}>
+            <div>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <img src={dragonMeditatif} alt="Dragon IA" style={{ width: '120px', height: "160px", marginRight: '1rem' }} className="levitating"/>
+                    <h1 style={{ fontSize: '4rem', fontWeight: 'bold' }}>Chatbot IA</h1>
+                </div>
 
-  const handleRagSubmit = () => {
-    fetch(`/api/rag?question=${encodeURIComponent(ragInput)}`)
-      .then(res => res.text())
-      .then(text => setRagResponse(text));
-  };
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <button onClick={() => setTab('chat')} style={tab === 'chat' ? { fontWeight: 'bold', textDecoration: 'underline' } : {}}>💬 Chat libre</button>
+                    <button onClick={() => setTab('qcm')} style={tab === 'qcm' ? { fontWeight: 'bold', textDecoration: 'underline' } : {}}>🧪 QCM intelligent</button>
+                    <button onClick={() => setTab('rag')} style={tab === 'rag' ? { fontWeight: 'bold', textDecoration: 'underline' } : {}}>📚 Mode cours (RAG)</button>
+                </div>
 
-  return (
-    <div className="p-4 font-sans">
-      <h1 className="text-2xl font-bold mb-4">Chatbot IA</h1>
-      <div className="flex space-x-4 mb-6">
-        <button onClick={() => setTab('chat')} className={tab === 'chat' ? 'font-bold underline' : ''}>💬 Chat libre</button>
-        <button onClick={() => setTab('qcm')} className={tab === 'qcm' ? 'font-bold underline' : ''}>🧪 QCM intelligent</button>
-        <button onClick={() => setTab('rag')} className={tab === 'rag' ? 'font-bold underline' : ''}>📚 Mode cours (RAG)</button>
-      </div>
+                {tab === 'chat' && <ChatTab />}
 
-      {tab === 'chat' && (
-        <div>
-          <textarea value={chatInput} onChange={e => setChatInput(e.target.value)} className="w-full p-2 border rounded" rows={4} />
-          <button onClick={handleChatSubmit} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded">Envoyer</button>
-          <pre className="mt-4 bg-gray-100 p-4 rounded">{chatResponse}</pre>
+                {tab === 'qcm' && (
+                    <>
+                        <QcmSelector
+                            onSubmitAll={handleQcmSubmit}
+                            setResults={setResults}
+                            setShowModal={setShowModal}
+                        />
+                        {isLoading && (
+                            <div style={{ marginTop: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                                ⏳ Évaluation en cours
+                                <span style={{ fontWeight: 'bold' }} className="dots-loading">...</span>
+                            </div>
+                        )}
+                        <QcmResultModal results={results} onClose={() => setShowModal(false)} visible={showModal} />
+                    </>
+                )}
+
+                {tab === 'rag' && <RagChat />}
+            </div>
+
+            {/* Animation CSS inline */}
+            <style>{`
+        @keyframes dots {
+          0%, 20% { content: ''; }
+          40% { content: '.'; }
+          60% { content: '..'; }
+          80%, 100% { content: '...'; }
+        }
+        .dots-loading::after {
+          display: inline-block;
+          animation: dots 1.2s steps(4, end) infinite;
+          content: '';
+        }
+      `}</style>
         </div>
-      )}
-
-      {tab === 'qcm' && (
-        <>
-          <QcmSelector onSubmit={handleQcmSubmit} />
-          <QcmResultModal results={results} onClose={() => setShowModal(false)} />
-        </>
-      )}
-
-      {tab === 'rag' && (
-        <div>
-          <textarea value={ragInput} onChange={e => setRagInput(e.target.value)} className="w-full p-2 border rounded" rows={4} />
-          <button onClick={handleRagSubmit} className="mt-2 px-4 py-2 bg-green-600 text-white rounded">Demander au cours</button>
-          <pre className="mt-4 bg-gray-100 p-4 rounded">{ragResponse}</pre>
-        </div>
-      )}
-    </div>
-  );
+    );
 }
 
 export default App;

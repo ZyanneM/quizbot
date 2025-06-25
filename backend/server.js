@@ -39,15 +39,39 @@ app.get('/questions/:dataset', (req, res) => {
     fs.createReadStream(csvPath)
         .pipe(csv())
         .on('data', (row) => {
-            if (row['Question']) {
-                questions.push(row['Question']);
+            // 🧠 Ajoute une console.log ici :
+            console.log('🔍 Ligne lue :', row);
+            const questionKey = Object.keys(row).find(k => k.trim().includes('Question'));
+            if (questionKey) {
+                questions.push(row[questionKey]);
             }
         })
-        .on('end', () => res.json(questions))
+        .on('end', () => {
+            console.log('✅ Questions extraites :', questions);
+            res.json(questions);
+        })
         .on('error', (err) => {
             console.error('❌ Erreur lecture CSV :', err);
             res.status(500).send('Erreur lecture CSV');
         });
+});
+
+// 🔹 POST /qcm/evaluate – appelle le script process_eval.py
+app.post('/api/qcm/evaluate', (req, res) => {
+    const datasetPath = path.join(__dirname, 'documents', 'eval.csv');
+    runPython('qcm/process_eval.py', `"${datasetPath}"`, (err, stdout, stderr) => {
+        if (err) {
+            console.error('❌ Erreur process_eval.py :', stderr || err);
+            return res.status(500).send(stderr || err);
+        }
+        try {
+            const json = JSON.parse(stdout);
+            res.json(json);
+        } catch (e) {
+            console.error("❌ Erreur de parsing JSON :", e);
+            res.status(500).send('Erreur de parsing JSON');
+        }
+    });
 });
 
 // 🔹 POST /ask-one – pose une question spécifique via RAG
@@ -85,6 +109,38 @@ app.post('/ask-free', (req, res) => {
         if (err) return res.status(500).send(stderr);
         console.log('📥 Réponse brute Python :', stdout); // <--- AJOUTE ICI
         res.send({ answer: stdout.trim() });
+    });
+});
+
+// 🔹 POST /ask-rag – question avec contexte cours (RAG)
+app.post('/ask-rag', (req, res) => {
+    const question = req.body.question;
+    console.log('📤 [ASK-RAG] Question reçue :', question);
+    runPython('rag/answer_from_docs.py', `"${question}"`, (err, stdout, stderr) => {
+        if (err) {
+            console.error('❌ Erreur RAG :', stderr || err);
+            return res.status(500).send(stderr || err);
+        }
+        res.send({ answer: stdout.trim() });
+    });
+});
+
+app.post('/api/qcm/evaluate-qcm', (req, res) => {
+    const command = 'poetry run python qcm/evaluate_qcm.py';
+
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error('❌ Erreur :', error);
+            return res.status(500).json({ error: 'Erreur d\'évaluation' });
+        }
+
+        try {
+            const results = JSON.parse(stdout);
+            res.json(results);
+        } catch (e) {
+            console.error('❌ Erreur parsing JSON :', e);
+            res.status(500).json({ error: 'Résultat non lisible' });
+        }
     });
 });
 

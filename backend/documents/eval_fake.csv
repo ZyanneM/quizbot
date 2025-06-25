@@ -1,6 +1,0 @@
-Question,Réponse 1,Réponse 2,Réponse 3,Réponse 4,Bonne réponse
-Qu'est-ce que le fine-tuning d'un modèle de langage ?,Une méthode pour nettoyer les données textuelles,Une phase où l'on adapte un modèle pré-entraîné à une tâche spécifique,Un algorithme d’optimisation utilisé pour entraîner les réseaux de neurones,Un processus de génération de texte aléatoire,Réponse 2
-Quel est l'objectif principal d'un embedding ?,Réduire la taille d’un fichier CSV,Traduire du texte en une autre langue,"Représenter des éléments (mots, phrases) sous forme de vecteurs numériques",Créer des images à partir de texte,Réponse 3
-Quelle méthode est généralement utilisée pour entraîner un modèle de langage ?,Régression linéaire,Apprentissage supervisé avec des paires question-réponse,Random Forest,Compression de fichiers,Réponse 2
-Quel est l'avantage du fine-tuning par rapport à l'entraînement depuis zéro ?,Il nécessite moins de données et de ressources,Il fonctionne uniquement sur des données audio,Il est plus lent mais plus précis,Il efface les poids du modèle original,Réponse 1
-Quelle technique peut être utilisée pour comparer des embeddings ?,La somme vectorielle,La métrique d’entropie,La similarité cosinus,Le tri alphabétique,Réponse 3
